@@ -45,9 +45,9 @@ public class PlayerWeak : MonoBehaviour
 
         // Flip sprite
         if (inputX > 0)
-            transform.localScale = new Vector3(-1, 1, 1);
+            transform.localScale = new Vector3(-2, 2, 2);
         else if (inputX < 0)
-            transform.localScale = new Vector3(1, 1, 1);
+            transform.localScale = new Vector3(2, 2, 2);
 
         // Move
         m_body2d.linearVelocity = new Vector2(inputX * m_speed, m_body2d.linearVelocity.y);
