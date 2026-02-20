@@ -3,9 +3,8 @@ using UnityEngine;
 public class EnemyShooter : MonoBehaviour
 {
     public Transform player;
-    public GameObject projectilePrefab; // The horse projectile
+    public GameObject projectilePrefab;
     public Transform firePoint;
-
     public float fireRate = 1f;
     public float projectileSpeed = 10f;
     public float detectionRange = 15f;
@@ -16,11 +15,10 @@ public class EnemyShooter : MonoBehaviour
     {
         if (player == null) return;
 
-        float distance = Vector3.Distance(transform.position, player.position);
-
+        float distance = Vector2.Distance(transform.position, player.position);
         if (distance <= detectionRange)
         {
-            AimAtPlayer(); // Enemy rotation / flip stays intact
+            AimAtPlayer();
 
             if (Time.time >= nextFireTime)
             {
@@ -32,45 +30,35 @@ public class EnemyShooter : MonoBehaviour
 
     void AimAtPlayer()
     {
-        Vector3 direction = player.position - transform.position;
+        Vector2 direction = player.position - transform.position;
+        // Calculate angle toward player
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-
-        // Keep your top-to-bottom flip logic exactly
-        if (direction.x < 0)
-        {
-            transform.rotation = Quaternion.Euler(180f, 0f, -angle);
-        }
-        else
-        {
-            transform.rotation = Quaternion.Euler(0f, 0f, angle);
-        }
+        // Set rotation so front of the enemy faces the player
+        transform.rotation = Quaternion.Euler(0f, 0f, angle);
     }
 
     void Shoot()
     {
-        // Spawn the horse projectile with enemy rotation
         GameObject projectile = Instantiate(
             projectilePrefab,
             firePoint.position,
             firePoint.rotation
         );
 
-        // Move the horse along its local X-axis (change to transform.forward if needed)
-        Rigidbody rb = projectile.GetComponent<Rigidbody>();
+        Rigidbody2D rb = projectile.GetComponent<Rigidbody2D>();
         if (rb != null)
         {
+            // Fire projectile toward where the enemy is facing
             rb.linearVelocity = projectile.transform.right * projectileSpeed;
         }
 
-        // Prevent collision with the enemy
-        Collider projCollider = projectile.GetComponent<Collider>();
-        Collider enemyCollider = GetComponent<Collider>();
+        Collider2D projCollider = projectile.GetComponent<Collider2D>();
+        Collider2D enemyCollider = GetComponent<Collider2D>();
         if (projCollider != null && enemyCollider != null)
         {
-            Physics.IgnoreCollision(projCollider, enemyCollider);
+            Physics2D.IgnoreCollision(projCollider, enemyCollider);
         }
 
-        // Destroy after 5 seconds to clean up
         Destroy(projectile, 5f);
     }
 }
