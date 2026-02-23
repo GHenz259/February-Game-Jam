@@ -9,8 +9,12 @@ public class EnemyProjectile : MonoBehaviour
         Destroy(gameObject, lifetime);
     }
 
-    void OnCollisionEnter2D(Collision2D collision)
+    void OnTriggerEnter2D(Collider2D other)
     {
-        Destroy(gameObject);
+        if (other.CompareTag("Player"))
+        {
+            SharedHealthSystem.Instance.TakeDamage(10f); // set your damage value
+            Destroy(gameObject);
+        }
     }
 }
