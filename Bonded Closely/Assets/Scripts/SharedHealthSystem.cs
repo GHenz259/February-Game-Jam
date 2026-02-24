@@ -21,18 +21,32 @@ public class SharedHealthSystem : MonoBehaviour
         }
     }
 
-    public void TakeDamage(float damageAmount)
-    {
-        currentHealth -= damageAmount;
-        currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
-        Debug.Log("Shared Health: " + currentHealth);
+public void TakeDamage(float damageAmount)
+{
+    currentHealth -= damageAmount;
+    currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
+    Debug.Log("Shared Health: " + currentHealth);
 
-        if (currentHealth <= 0f)
+    GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+    foreach (GameObject player in players)
+    {
+        Bandit bandit = player.GetComponent<Bandit>();
+        if (bandit != null)
         {
-            Die();
+            bandit.TriggerHurt();
+            continue;
         }
+
+        PlayerWeak playerWeak = player.GetComponent<PlayerWeak>();
+        if (playerWeak != null)
+            playerWeak.TriggerHurt();
     }
 
+    if (currentHealth <= 0f)
+    {
+        Die();
+    }
+}
     void Die()
     {
         Debug.Log("GAME OVER - Shared Health Depleted");
