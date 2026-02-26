@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class SharedHealthSystem : MonoBehaviour
 {
@@ -21,32 +23,33 @@ public class SharedHealthSystem : MonoBehaviour
         }
     }
 
-public void TakeDamage(float damageAmount)
-{
-    currentHealth -= damageAmount;
-    currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
-    Debug.Log("Shared Health: " + currentHealth);
-
-    GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
-    foreach (GameObject player in players)
+    public void TakeDamage(float damageAmount)
     {
-        Bandit bandit = player.GetComponent<Bandit>();
-        if (bandit != null)
+        currentHealth -= damageAmount;
+        currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
+        Debug.Log("Shared Health: " + currentHealth);
+
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+        foreach (GameObject player in players)
         {
-            bandit.TriggerHurt();
-            continue;
+            Bandit bandit = player.GetComponent<Bandit>();
+            if (bandit != null)
+            {
+                bandit.TriggerHurt();
+                continue;
+            }
+
+            PlayerWeak playerWeak = player.GetComponent<PlayerWeak>();
+            if (playerWeak != null)
+                playerWeak.TriggerHurt();
         }
 
-        PlayerWeak playerWeak = player.GetComponent<PlayerWeak>();
-        if (playerWeak != null)
-            playerWeak.TriggerHurt();
+        if (currentHealth <= 0f)
+        {
+            Die();
+        }
     }
 
-    if (currentHealth <= 0f)
-    {
-        Die();
-    }
-}
     void Die()
     {
         Debug.Log("GAME OVER - Shared Health Depleted");
@@ -65,6 +68,14 @@ public void TakeDamage(float damageAmount)
             if (playerWeak != null)
                 playerWeak.TriggerDeath();
         }
+
+        StartCoroutine(RestartAfterDelay());
+    }
+
+    IEnumerator RestartAfterDelay()
+    {
+        yield return new WaitForSeconds(5f);
+        SceneManager.LoadScene(0);
     }
 
     public float GetCurrentHealth()
